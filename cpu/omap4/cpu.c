@@ -146,9 +146,23 @@ unsigned int omap_revision(void)
 		case MIDR_CORTEX_A9_R1P3:
 			return OMAP4430_ES2_3;
 		case MIDR_CORTEX_A9_R2P10:
-			return OMAP4460_ES1_0;
+			rev = readl(CONTROL_ID_CODE);
+			/* For 4460/4470 skip Version Number
+			 * and use Ramp System Number only.
+			 * There isn't a difference between v1.0/1.1
+			 * for x-loader
+			 */
+			rev &= OMAP4_CONTROL_ID_CODE_RAMP_MASK;
+			switch (rev) {
+				case OMAP4_CONTROL_ID_CODE_4460_ES1:
+					return OMAP4460_ES1_0;
+				case OMAP4_CONTROL_ID_CODE_4470_ES1:
+					return OMAP4470_ES1_0;
+				default:
+					return OMAP44XX_SILICON_ID_INVALID;
+			}
 		default:
-			return OMAP4430_SILICON_ID_INVALID;
+			return OMAP44XX_SILICON_ID_INVALID;
 	}
 }
 
