@@ -508,6 +508,15 @@ static void configure_abe_dpll(u32 clk_index)
 	sr32(CM_CLKMODE_DPLL_ABE, 0, 3, PLL_LOCK);
 	wait_on_value(BIT0, 1, CM_IDLEST_DPLL_ABE, LDELAY);
 
+#ifndef CONFIG_OMAP4_ABE_SYSCK
+	if(omap_revision() < OMAP4460_ES1_0)
+	{
+		/* Set M & N values again for DPLL_ABE in warm reset scenario.*/
+		sr32(CM_CLKSEL_DPLL_ABE, 8, 11, dpll_param_p->m);
+		sr32(CM_CLKSEL_DPLL_ABE, 0, 7, dpll_param_p->n);
+	}
+#endif
+
 	return;
 }
 
