@@ -333,9 +333,6 @@ static void configure_mpu_dpll(u32 clk_index)
 
 		/* Enable / disable DCC on 4460 */
 		sr32(CM_CLKSEL_DPLL_MPU, 22, 1, dcc_en);
-
-	} else if (omap4_rev > OMAP4430_ES1_0) {
-		dpll_param_p = &mpu_dpll_param_1008mhz[clk_index];
 	} else {
 		dpll_param_p = &mpu_dpll_param_600mhz[clk_index];
 	}
