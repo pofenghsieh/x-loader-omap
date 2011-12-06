@@ -92,7 +92,7 @@ int cpu_init (void)
 	__raw_writel(0x00084000, SYSCTRL_PADCONF_CORE_EFUSE_2);
 
 	/*if MPU_VOLTAGE_CTRL is 0x0 unit is not trimmed*/
-	if ((OMAP4460_ES1_0 == es_revision) &&
+	if ((es_revision >= OMAP4460_ES1_0) &&
 		(((__raw_readl(IVA_LDOSRAM_VOLTAGE_CTRL) &
 					   ~(0x3e0)) == 0x0)) ||
 		((es_revision >= OMAP4430_ES2_2) &&
@@ -127,6 +127,7 @@ unsigned int omap_revision(void)
 	 * So use ARM revision for identification
 	 */
 	unsigned int rev = cortex_a9_rev();
+	unsigned int proc_version = 0;
 
 	switch (rev) {
 		case MIDR_CORTEX_A9_R0P1:
@@ -152,10 +153,18 @@ unsigned int omap_revision(void)
 			 * There isn't a difference between v1.0/1.1
 			 * for x-loader
 			 */
+			proc_version = (rev >> 28) & 0xf;
 			rev &= OMAP4_CONTROL_ID_CODE_RAMP_MASK;
 			switch (rev) {
 				case OMAP4_CONTROL_ID_CODE_4460_ES1:
-					return OMAP4460_ES1_0;
+					switch (proc_version) {
+						case 0x0:
+							return OMAP4460_ES1_0;
+						case 0x2:
+							return OMAP4460_ES1_1;
+						default:
+							return OMAP44XX_SILICON_ID_INVALID;
+					}
 				case OMAP4_CONTROL_ID_CODE_4470_ES1:
 					return OMAP4470_ES1_0;
 				default:
