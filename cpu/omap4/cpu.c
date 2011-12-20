@@ -78,6 +78,15 @@ int cpu_init (void)
 		omap_smc_rom(ROM_SERVICE_PL310_AUXCR,
 			__raw_readl(OMAP44XX_PL310_AUX_CTRL) | 0x10000000);
 	}
+	/*
+	 * Errata: i684
+	 * For all ESx.y trimmed and untrimmed units
+	 * Override efuse with LPDDR P:16/N:16 and
+	 * smart IO P:0/N:0 as per recomendation
+	 * OMAP4470 CPU types not impacted.
+	 */
+	if (es_revision < OMAP4470_ES1_0)
+		__raw_writel(0x00084000, SYSCTRL_PADCONF_CORE_EFUSE_2);
 
 	/* For ES2.2
 	 * 1. If unit does not have SLDO trim, set override
@@ -85,11 +94,7 @@ int cpu_init (void)
 	 * proper SLDO voltage at low OPP's
 	 * 2. Trim VDAC value for TV out as recomended to avoid
 	 * potential instabilities at low OPP's
-	 * 3.For all ESx.y trimmed and untrimmed units
-	 * Override efuse with LPDDR P:16/N:16 and
-	 * smart IO P:0/N:0 as per recomendation
 	 */
-	__raw_writel(0x00084000, SYSCTRL_PADCONF_CORE_EFUSE_2);
 
 	/*if MPU_VOLTAGE_CTRL is 0x0 unit is not trimmed*/
 	if ((es_revision >= OMAP4460_ES1_0) &&
