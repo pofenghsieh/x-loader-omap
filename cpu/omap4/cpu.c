@@ -93,7 +93,8 @@ int cpu_init (void)
 	 * and force max multiplication factor to ensure
 	 * proper SLDO voltage at low OPP's
 	 * 2. Trim VDAC value for TV out as recomended to avoid
-	 * potential instabilities at low OPP's
+	 * potential instabilities at low OPP's. VDAC is absent
+	 * on OMAP4470 CPUs.
 	 */
 
 	/*if MPU_VOLTAGE_CTRL is 0x0 unit is not trimmed*/
@@ -107,7 +108,8 @@ int cpu_init (void)
 		__raw_writel(0x0401040f, IVA_LDOSRAM_VOLTAGE_CTRL);
 		__raw_writel(0x0401040f, MPU_LDOSRAM_VOLTAGE_CTRL);
 		__raw_writel(0x0401040f, CORE_LDOSRAM_VOLTAGE_CTRL);
-		__raw_writel(0x000001c0, SYSCTRL_PADCONF_CORE_EFUSE_1);
+		if (es_revision < OMAP4470_ES1_0)
+			__raw_writel(0x000001c0, SYSCTRL_PADCONF_CORE_EFUSE_1);
 	}
 
 	return 0;
