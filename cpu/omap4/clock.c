@@ -344,45 +344,30 @@ static void configure_mpu_dpll(u32 clk_index)
 	wait_on_value(BIT0, 0, CM_IDLEST_DPLL_MPU, LDELAY);
 
 	if (omap4_rev >= OMAP4470_ES1_0) {
-		dpll_param_p = &mpu_dpll_param_800mhz[clk_index];
-	}
-	else if (omap4_rev >= OMAP4460_ES1_0) {
-		switch (omap4_silicon_type()) {
-#if 0
-			case PROD_ID_1_SILICON_TYPE_STD_PERF:
-				/*
-				 * Same M, N as for 600 MHz from M2 output will
-				 * give 1200 MHz from M3 output
-				 */
-				dpll_param_p = &mpu_dpll_param_600mhz[clk_index];
-				dcc_en = 1;
-				emif_div_4 = 1;
-				abe_div_8 = 1;
-				break;
-			case PROD_ID_1_SILICON_TYPE_HIGH_PERF:
-				dpll_param_p = &mpu_dpll_param_1_5ghz[clk_index];
-				dcc_en = 1;
-				emif_div_4 = 1;
-				abe_div_8 = 1;
-				break;
-#endif
-			default:
-				/*
-				 * Same M, N as for 700 MHz from M2 output will
-				 * give 1200 MHz from M3 output
-				 */
-				dpll_param_p = &mpu_dpll_param_700mhz[clk_index];
-				dcc_en = 0;
-				emif_div_4 = 1;
-				abe_div_8 = 1;
-				break;
-#if 0
-				dpll_param_p = &mpu_dpll_param_920mhz[clk_index];
-				emif_div_4 = 0;
-				abe_div_8 = 1;
-				break;
-#endif
-		}
+			/*
+			 * Same M, N as for 800 MHz from M2 output will
+			 * give 1600 MHz from M3 output
+			 */
+			dpll_param_p = &mpu_dpll_param_800mhz[clk_index];
+	} else if (omap4_rev >= OMAP4460_ES1_0) {
+
+		/*
+		 * Same M, N as for 700 MHz from M2 output will
+		 * give 1400 MHz from M3 output
+		 *
+		 * It seems that untrimmed SOMs have issues with running @ 700MHz
+		 * OPP100 for MPU DPLL.
+		 * So HACK away and enable 600MHz for untrimmed SOMs and allow
+		 * 700Mhz for trimmed units*/
+		u32 rbb_trimmed = readl(STD_FUSE_OPP_DPLL_1);
+		if (rbb_trimmed & (1 << 19))
+			dpll_param_p = &mpu_dpll_param_700mhz[clk_index];
+		else
+			dpll_param_p = &mpu_dpll_param_600mhz[clk_index];
+
+		dcc_en = 0;
+		emif_div_4 = 1;
+		abe_div_8 = 1;
 
 		sr32(CM_MPU_MPU_CLKCTRL, 24, 1, emif_div_4);
 		sr32(CM_MPU_MPU_CLKCTRL, 25, 1, abe_div_8);
