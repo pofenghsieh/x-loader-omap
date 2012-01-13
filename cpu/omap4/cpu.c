@@ -287,7 +287,7 @@ static void scale_vcores(void)
 	if (rev >= OMAP4470_ES1_0 && rev <= OMAP4470_MAX_REVISION)
 		__raw_writel(0x3A5512, 0x4A307BA0);
 	else if (rev >= OMAP4460_ES1_0 && rev <= OMAP4460_MAX_REVISION)
-		__raw_writel(0x305512, 0x4A307BA0);
+		__raw_writel(0x225512, 0x4A307BA0);
 	else if(rev == OMAP4430_ES1_0)
 		__raw_writel(0x3B5512, 0x4A307BA0);
 	else if (rev == OMAP4430_ES2_0)
