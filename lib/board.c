@@ -34,6 +34,7 @@
 #include <part.h>
 #include <fat.h>
 #include <mmc.h>
+#include <version.h>
 #include <asm/io.h>
 #include <asm/arch/bits.h>
 #include <asm/arch/clocks.h>
@@ -44,7 +45,7 @@
 #ifdef CFG_PRINTF
 int print_info(void)
 {
-	printf ("\n\nTexas Instruments X-Loader 1.41 ("
+	printf ("\n\n"X_LOADER_VERSION" ("
 		__DATE__ " - " __TIME__ ")\n");
 	return 0;
 }
