@@ -270,14 +270,6 @@ static void scale_vcores(void)
 	/* PRM_VC_CFG_I2C_CLK */
 	__raw_writel(0x6026, 0x4A307BAC);
 
-	/* Enable 1.3V from TPS for vdd_mpu on 4460 */
-	if (rev >= OMAP4460_ES1_0 && rev <= OMAP4460_MAX_REVISION) {
-		volt = 1300;
-		volt -= TPS62361_BASE_VOLT_MV;
-		volt /= 10;
-		do_scale_tps62361(TPS62361_REG_ADDR_SET1, volt);
-	}
-
 	/* VCOREx - power outputs of TWL6030 (OMAP4430/OMAP4460) */
 	/* SMPSx  - power outputs of TWL6032 (OMAP4470) */
 	/* set VCORE1 force VSEL */
@@ -341,7 +333,7 @@ static void scale_vcores(void)
 	/* PRM_VC_VAL_BYPASS */
 	/* VCORE 3 - vdd_core on 4430, none for 4460/4470 */
 	if (rev >= OMAP4460_ES1_0)
-		return;
+		goto skip_vcore3;
 	else if(rev == OMAP4430_ES1_0)
 		__raw_writel(0x316112, 0x4A307BA0);
 	else if (rev == OMAP4430_ES2_0)
@@ -356,6 +348,16 @@ static void scale_vcores(void)
 
 	/* PRM_IRQSTATUS_MPU */
 	__raw_writel(__raw_readl(0x4A306010), 0x4A306010);
+skip_vcore3:
+
+	/* Enable 1.3V from TPS for vdd_mpu on 4460 */
+	if (rev >= OMAP4460_ES1_0 && rev <= OMAP4460_MAX_REVISION) {
+		volt = 1300;
+		volt -= TPS62361_BASE_VOLT_MV;
+		volt /= 10;
+		do_scale_tps62361(TPS62361_REG_ADDR_SET1, volt);
+	}
+
 
 }
 
