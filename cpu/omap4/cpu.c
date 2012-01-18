@@ -243,10 +243,6 @@ static void do_scale_tps62361(u32 reg, u32 val)
 	l &= ~(1 << TPS62361_VSEL0_GPIO);
 	__raw_writel(l, 0x4A310134);
 
-	/* set GPIO-7 data-out */
-	l = 1 << TPS62361_VSEL0_GPIO;
-	__raw_writel(l, 0x4A310194);
-
 	temp = TPS62361_I2C_SLAVE_ADDR |
 		(reg << PRM_VC_VAL_BYPASS_REGADDR_SHIFT) |
 		(val << PRM_VC_VAL_BYPASS_DATA_SHIFT) |
@@ -256,6 +252,10 @@ static void do_scale_tps62361(u32 reg, u32 val)
 
 	while (readl(PRM_VC_VAL_BYPASS) & PRM_VC_VAL_BYPASS_VALID_BIT)
                 ;
+	/* set GPIO-7 data-out */
+	l = 1 << TPS62361_VSEL0_GPIO;
+	__raw_writel(l, 0x4A310194);
+
 }
 
 static void scale_vcores(void)
