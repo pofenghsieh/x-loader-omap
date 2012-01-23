@@ -51,22 +51,7 @@ const struct ddr_regs ddr_regs_elpida2G_400_mhz_2cs = {
 	.tim1		= 0x10eb0662,
 	.tim2		= 0x20370dd2,
 	.tim3		= 0x00b1c33f,
-	.phy_ctrl_1	= 0x849FF408,
-	.ref_ctrl	= 0x00000618,
-	.config_init	= 0x80000eb9,
-	.config_final	= 0x80001ab9,
-	.zq_config	= 0xd00b3215,
-	.mr1		= 0x83,
-	.mr2		= 0x4
-};
-
-/*  This sets the EMIG controller setting based on the values
-    received from Silicon Validation team, only for 4460 */
-const struct ddr_regs ddr_regs_elpida2G_400_mhz_2cs_omap4460 = {
-	.tim1		= 0x10eb0662,
-	.tim2		= 0x20370dd2,
-	.tim3		= 0x00b1c33f,
-	.phy_ctrl_1	= 0x449FF408,
+	.phy_ctrl_1	= 0x049FF408,
 	.ref_ctrl	= 0x00000618,
 	.config_init	= 0x80800eb9,
 	.config_final	= 0x80801ab9,
@@ -105,10 +90,10 @@ const struct ddr_regs ddr_regs_elpida2G_380_mhz = {
 	.tim1		= 0x10cb061a,
 	.tim2		= 0x20350d52,
 	.tim3		= 0x00b1431f,
-	.phy_ctrl_1	= 0x849FF408,
+	.phy_ctrl_1	= 0x049FF408,
 	.ref_ctrl	= 0x000005ca,
-	.config_init	= 0x80000eb1,
-	.config_final	= 0x80001ab1,
+	.config_init	= 0x80800eb1,
+	.config_final	= 0x80801ab1,
 	.zq_config	= 0x500b3215,
 	.mr1		= 0x83,
 	.mr2		= 0x4
@@ -131,10 +116,10 @@ const struct ddr_regs ddr_regs_elpida2G_200_mhz_2cs = {
 	.tim1		= 0x08648309,
 	.tim2		= 0x101b06ca,
 	.tim3		= 0x0048a19f,
-	.phy_ctrl_1	= 0x849FF405,
+	.phy_ctrl_1	= 0x049FF405,
 	.ref_ctrl	= 0x0000030c,
-	.config_init	= 0x80000eb9,
-	.config_final	= 0x80000eb9,
+	.config_init	= 0x80800eb9,
+	.config_final	= 0x80800eb9,
 	.zq_config	= 0xD00b3215,
 	.mr1		= 0x23,
 	.mr2		= 0x1
@@ -150,10 +135,8 @@ void __ddr_init(void)
 		ddr_regs = &ddr_regs_elpida2G_380_mhz;
 	else if (rev == OMAP4430_ES2_0)
 		ddr_regs = &ddr_regs_elpida2G_200_mhz_2cs;
-	else if (rev >= OMAP4430_ES2_1 && rev < OMAP4460_ES1_0)
+	else if (rev >= OMAP4430_ES2_1 && rev < OMAP4470_ES1_0)
 		ddr_regs = &ddr_regs_elpida2G_400_mhz_2cs;
-	else if (rev >= OMAP4460_ES1_0 && rev < OMAP4470_ES1_0)
-		ddr_regs = &ddr_regs_elpida2G_400_mhz_2cs_omap4460;
 	else if (rev >= OMAP4470_ES1_0)
 #ifdef CORE_233MHZ
 		ddr_regs = &ddr_regs_elpida4G_466_mhz_1cs;
