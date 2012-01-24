@@ -304,7 +304,7 @@ static void scale_vcores(void)
 	else if (rev >= OMAP4470_ES1_0 && rev <= OMAP4470_MAX_REVISION)
 		__raw_writel(0x305B12, 0x4A307BA0);
 	else if (rev >= OMAP4460_ES1_0 && rev <= OMAP4460_MAX_REVISION)
-		__raw_writel(0x305B12, 0x4A307BA0);
+		__raw_writel(0x215B12, 0x4A307BA0);
 	else
 		__raw_writel(0x295B12, 0x4A307BA0);
 
@@ -350,9 +350,9 @@ static void scale_vcores(void)
 	__raw_writel(__raw_readl(0x4A306010), 0x4A306010);
 skip_vcore3:
 
-	/* Enable 1.3V from TPS for vdd_mpu on 4460 */
+	/* Enable 1.210V(rounded up from 1.203) from TPS for vdd_mpu on 4460 */
 	if (rev >= OMAP4460_ES1_0 && rev <= OMAP4460_MAX_REVISION) {
-		volt = 1300;
+		volt = 1210;
 		volt -= TPS62361_BASE_VOLT_MV;
 		volt /= 10;
 		do_scale_tps62361(TPS62361_REG_ADDR_SET1, volt);
