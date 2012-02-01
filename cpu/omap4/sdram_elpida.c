@@ -68,7 +68,7 @@ const struct ddr_regs ddr_regs_elpida4G_400_mhz_1cs = {
 	.ref_ctrl	= 0x00000618,
 	.config_init	= 0x80800eb2,
 	.config_final	= 0x80801ab2,
-	.zq_config	= 0xd00b3215,
+	.zq_config	= 0x500b3215,
 	.mr1		= 0x83,
 	.mr2		= 0x4
 };
@@ -81,7 +81,7 @@ const struct ddr_regs ddr_regs_elpida4G_466_mhz_1cs = {
 	.ref_ctrl	= 0x0000071B,
 	.config_init	= 0x80800eb2,
 	.config_final	= 0x80801ab2,
-	.zq_config	= 0xd00b3215,
+	.zq_config	= 0x500b3215,
 	.mr1		= 0x83,
 	.mr2		= 0x4
 };
