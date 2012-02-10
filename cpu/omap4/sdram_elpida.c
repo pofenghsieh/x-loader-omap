@@ -161,18 +161,62 @@ void __ddr_init(void)
 		ddr_regs = &ddr_regs_elpida4G_400_mhz_1cs;
 #endif
 	/*
-	 * DMM Configuration:
-	 * ES1.0 - 512 MB
-	 * ES2.0 - 1GB
-	 * 128 byte interleaved
+	 * DMM DMM_LISA_MAP_i registers fields description
+	 * [31:24] SYS_ADDR
+	 * [22:20] SYS_SIZE
+	 * [19:18] SDRC_INTLDMM
+	 * [17:16] SDRC_ADDRSPC
+	 * [9:8] SDRC_MAP
+	 * [7:0] SDRC_ADDR
 	 */
+
+	/* TI Errata i614 - DMM Hang Issue During Unmapped Accesses
+	 * CRITICALITY: Medium
+	 * REVISIONS IMPACTED: OMAP4430 all
+	 * DESCRIPTION
+	 * DMM replies with an OCP error response in case of unmapped access.
+	 * DMM can generate unmapped access at the end of a mapped section.
+	 * A hang occurs if an unmapped access is issued after a mapped access.
+	 *
+	 * WORKAROUND
+	 * Define LISA section to have response error when unmapped addresses.
+	 * Define LISA section in such a way that all transactions reach the
+	 * EMIF, which will return an error response.
+	 *
+	 * For W/A configure DMM Section 0 size equal to 2048 MB and map it on
+	 * SDRC_ADDRSPC=0, and move original SDRAM configuration
+	 * to section 1 with higher priority.
+	 *
+	 * This W/A has been applied for all OMAP4 CPUs - It doesn't any harm
+	 * on 4460, and even desirable than hitting an un-mapped area in DMM.
+	 * This makes the code simpler and easier to understand and
+	 * the settings will be more uniform.
+	 **/
+	/* TRAP for catching accesses to the umapped memory */
+	__raw_writel(0x80720100, DMM_BASE + DMM_LISA_MAP_0);
+
+	__raw_writel(0x00000000, DMM_BASE + DMM_LISA_MAP_2);
+	/* TRAP for catching accesses to the memory actually used by TILER */
+	__raw_writel(0xFF020100, DMM_BASE + DMM_LISA_MAP_1);
+
 	if (rev == OMAP4430_ES1_0)
-		__raw_writel(0x80540300, DMM_BASE + DMM_LISA_MAP_0);
-	else if (rev >= OMAP4460_ES1_0) {
-		__raw_writel(0x80640300, DMM_BASE + DMM_LISA_MAP_0);
-		__raw_writel(0x80640300, MA_BASE + DMM_LISA_MAP_0);
-	} else
-		__raw_writel(0x80640300, DMM_BASE + DMM_LISA_MAP_0);
+		/* original DMM configuration
+		 * - 512 MB, 128 byte interleaved, EMIF1&2, SDRC_ADDRSPC=0 */
+		__raw_writel(0x80540300, DMM_BASE + DMM_LISA_MAP_3);
+	else if (rev < OMAP4460_ES1_0)
+		/* original DMM configuration
+		 * - 1024 MB, 128 byte interleaved, EMIF1&2, SDRC_ADDRSPC=0 */
+		__raw_writel(0x80640300, DMM_BASE + DMM_LISA_MAP_3);
+	else {
+		/* OMAP4460 and higher: original DMM configuration
+		 * - 1024 MB, 128 byte interleaved, EMIF1&2, SDRC_ADDRSPC=0 */
+		__raw_writel(0x80640300, DMM_BASE + DMM_LISA_MAP_3);
+
+		__raw_writel(0x80720100, MA_BASE + DMM_LISA_MAP_0);
+		__raw_writel(0xFF020100, MA_BASE + DMM_LISA_MAP_1);
+		__raw_writel(0x00000000, MA_BASE + DMM_LISA_MAP_2);
+		__raw_writel(0x80640300, MA_BASE + DMM_LISA_MAP_3);
+	}
 
 	/* same memory part on both EMIFs */
 	do_ddr_init(ddr_regs, ddr_regs);

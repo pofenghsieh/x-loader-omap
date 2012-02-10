@@ -274,14 +274,6 @@ void do_ddr_init(const struct ddr_regs *emif1_ddr_regs,
 		/*__raw_writel(0x00ffc000, 0x4A100704); */
 	}
 
-	__raw_writel(0x00000000, DMM_BASE + DMM_LISA_MAP_2);
-	__raw_writel(0xFF020100, DMM_BASE + DMM_LISA_MAP_3);
-
-	if (rev >= OMAP4460_ES1_0) {
-		__raw_writel(0x00000000, MA_BASE + DMM_LISA_MAP_2);
-		__raw_writel(0xFF020100, MA_BASE + DMM_LISA_MAP_3);
-	}
-
 	/* DDR needs to be initialised @ 19.2 MHz
 	 * So put core DPLL in bypass mode
 	 * Configure the Core DPLL but don't lock it
@@ -342,19 +334,6 @@ void do_ddr_init(const struct ddr_regs *emif1_ddr_regs,
 		__raw_writel(0x0A0000FF, EMIF2_BASE + EMIF_L3_CONFIG);
 	}
 
-	/*
-	 * DMM : DMM_LISA_MAP_0(Section_0)
-	 * [31:24] SYS_ADDR 		0x80
-	 * [22:20] SYS_SIZE		0x7 - 2Gb
-	 * [19:18] SDRC_INTLDMM		0x1 - 128 byte
-	 * [17:16] SDRC_ADDRSPC 	0x0
-	 * [9:8] SDRC_MAP 		0x3
-	 * [7:0] SDRC_ADDR		0X0
-	 */
-
 	reset_phy(EMIF1_BASE);
 	reset_phy(EMIF2_BASE);
-
-	__raw_writel(0x0, 0x80000000);
-	__raw_writel(0x0, 0x80000080);
 }
