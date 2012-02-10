@@ -376,10 +376,8 @@ void s_init(void)
 	/* Set VCORE1 = 1.3 V, VCORE2 = VCORE3 = 1.21V */
 	scale_vcores();
 
-	prcm_init();
 	ddr_init();
-
-
+	prcm_init();
 }
 
 /******************************************************
