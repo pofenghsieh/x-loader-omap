@@ -301,12 +301,8 @@ static void scale_vcores(void)
 	/* SMPS 2  - vdd_core on 4470 */
 	if(rev == OMAP4430_ES1_0)
 		__raw_writel(0x315B12, 0x4A307BA0);
-	else if (rev >= OMAP4470_ES1_0 && rev <= OMAP4470_MAX_REVISION)
-		__raw_writel(0x305B12, 0x4A307BA0);
-	else if (rev >= OMAP4460_ES1_0 && rev <= OMAP4460_MAX_REVISION)
-		__raw_writel(0x215B12, 0x4A307BA0);
 	else
-		__raw_writel(0x295B12, 0x4A307BA0);
+		__raw_writel(0x145B12, 0x4A307BA0); /*Setting IVA Voltage for OPP50 */
 
 	__raw_writel(__raw_readl(0x4A307BA0) | 0x1000000, 0x4A307BA0);
 	while(__raw_readl(0x4A307BA0) & 0x1000000)
