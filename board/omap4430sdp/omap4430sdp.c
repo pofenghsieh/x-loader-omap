@@ -293,21 +293,18 @@ int board_init(void)
 	MV1(WK(PAD0_FREF_SLICER_IN) , ( M0))  /* fref_slicer_in */ \
 	MV1(WK(PAD1_FREF_CLK_IOREQ) , ( M0))  /* fref_clk_ioreq */ \
 	MV1(WK(PAD0_FREF_CLK0_OUT) , ( M2))  /* sys_drm_msecure */ \
-	MV1(WK(PAD1_FREF_CLK3_REQ) , ( PTU | IEN | M0))  /* # */ \
+	MV1(WK(PAD1_FREF_CLK3_REQ), ( M3)) /* gpio_wk30 */ \
 	MV1(WK(PAD0_FREF_CLK3_OUT) , ( M0))  /* fref_clk3_out */ \
-	MV1(WK(PAD1_FREF_CLK4_REQ) , ( PTU | IEN | M0))  /* # */ \
-	MV1(WK(PAD0_FREF_CLK4_OUT) , ( M0))  /* # */ \
+	MV1(WK(PAD1_FREF_CLK4_REQ), ( M3)) /* gpio_wk7 */ \
+	MV1(WK(PAD0_FREF_CLK4_OUT), ( M3)) /* gpio_wk8 */ \
 	MV1(WK(PAD1_SYS_32K) , ( IEN | M0))  /* sys_32k */ \
 	MV1(WK(PAD0_SYS_NRESPWRON) , ( M0))  /* sys_nrespwron */ \
 	MV1(WK(PAD1_SYS_NRESWARM) , ( M0))  /* sys_nreswarm */ \
 	MV1(WK(PAD0_SYS_PWR_REQ) , ( PTU | M0))  /* sys_pwr_req */ \
 	MV1(WK(PAD1_SYS_PWRON_RESET) , ( M3))  /* gpio_wk29 */ \
 	MV1(WK(PAD0_SYS_BOOT6) , ( IEN | M3))  /* gpio_wk9 */ \
-	MV1(WK(PAD1_SYS_BOOT7) , ( IEN | M3))  /* gpio_wk10 */ \
-	MV1(WK(PAD1_FREF_CLK3_REQ),     (M3)) /* gpio_wk30 */ \
-	MV1(WK(PAD1_FREF_CLK4_REQ),     (M3)) /* gpio_wk7 */ \
-	MV1(WK(PAD0_FREF_CLK4_OUT),     (M3)) /* gpio_wk8 */
- 
+	MV1(WK(PAD1_SYS_BOOT7) , ( IEN | M3))  /* gpio_wk10 */
+
 /**********************************************************
  * Routine: set_muxconf_regs
  * Description: Setting up the configuration Mux registers
