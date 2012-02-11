@@ -175,6 +175,7 @@
 #define PRM_VC_CFG_CHANNEL              0x4a307ba4
 #define PRM_VC_CFG_I2C_MODE             0x4a307ba8
 #define PRM_VC_CFG_I2C_CLK              0x4a307bac
+#define PRM_IRQSTATUS_MPU		0x4a306010
 
 /* CM1.CKGEN module registers */
 #define CM_CLKSEL_CORE				0x4a004100

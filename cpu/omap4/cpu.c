@@ -227,9 +227,58 @@ unsigned int fat_boot(void)
 		return 0;
 }
 
+/**
+ * omap_vc_bypass_send_value() - Send a data using VC Bypass command
+ * @sa:		7 bit I2C slave address of the PMIC
+ * @reg_addr:	I2C register address(8 bit) address in PMIC
+ * @reg_data:	what 8 bit data to write
+ */
+static int omap_vc_bypass_send_value(u8 sa, u8 reg_addr, u8 reg_data)
+{
+	/*
+	 * Unfortunately we need to loop here instead of a defined time
+	 * use arbitary large value
+	 */
+	u32 timeout = 0xFFFF;
+	u32 reg_val;
+
+	sa &= PRM_VC_VAL_BYPASS_SLAVEADDR_MASK;
+	reg_addr &= PRM_VC_VAL_BYPASS_REGADDR_MASK;
+	reg_data &= PRM_VC_VAL_BYPASS_DATA_MASK;
+
+	/* program VC to send data */
+	reg_val = sa << PRM_VC_VAL_BYPASS_SLAVEADDR_SHIFT |
+	    reg_addr << PRM_VC_VAL_BYPASS_REGADDR_SHIFT |
+	    reg_data << PRM_VC_VAL_BYPASS_DATA_SHIFT;
+	__raw_writel(reg_val, PRM_VC_VAL_BYPASS);
+
+	/* Signal VC to send data */
+	__raw_writel(reg_val | PRM_VC_VAL_BYPASS_VALID_BIT, PRM_VC_VAL_BYPASS);
+
+	/* Wait on VC to complete transmission */
+	do {
+		reg_val = __raw_readl(PRM_VC_VAL_BYPASS) &
+		    PRM_VC_VAL_BYPASS_VALID_BIT;
+		if (!reg_val)
+			break;
+
+		spin_delay(100);
+	} while (--timeout);
+
+	/* Cleanup PRM int status reg to leave no traces of interrupts */
+	reg_val = __raw_readl(PRM_IRQSTATUS_MPU);
+	__raw_writel(reg_val, PRM_IRQSTATUS_MPU);
+
+	/* In case we can do something about it in future.. */
+	if (!timeout)
+		return -1;
+
+	/* All good.. */
+	return 0;
+}
+
 static void do_scale_tps62361(u32 reg, u32 val)
 {
-	u32 temp = 0;
 	u32 l = 0;
 
 	/*
@@ -243,15 +292,8 @@ static void do_scale_tps62361(u32 reg, u32 val)
 	l &= ~(1 << TPS62361_VSEL0_GPIO);
 	__raw_writel(l, 0x4A310134);
 
-	temp = TPS62361_I2C_SLAVE_ADDR |
-		(reg << PRM_VC_VAL_BYPASS_REGADDR_SHIFT) |
-		(val << PRM_VC_VAL_BYPASS_DATA_SHIFT) |
-		PRM_VC_VAL_BYPASS_VALID_BIT;
+	omap_vc_bypass_send_value(TPS62361_I2C_SLAVE_ADDR, reg, val);
 
-	writel(temp, PRM_VC_VAL_BYPASS);
-
-	while (readl(PRM_VC_VAL_BYPASS) & PRM_VC_VAL_BYPASS_VALID_BIT)
-                ;
 	/* set GPIO-7 data-out */
 	l = 1 << TPS62361_VSEL0_GPIO;
 	__raw_writel(l, 0x4A310194);
@@ -262,6 +304,7 @@ static void scale_vcores(void)
 {
 	u32 volt;
 	unsigned int rev = omap_revision();
+
 	/* For VC bypass only VCOREx_CGF_FORCE  is necessary and
 	 * VCOREx_CFG_VOLTAGE  changes can be discarded
 	 */
@@ -277,55 +320,34 @@ static void scale_vcores(void)
 	/* VCORE 1 - vdd_core on 4460 and vdd_mpu on 4430 */
 	/* SMPS 1  - vdd_mpu on 4470 */
 	if (rev >= OMAP4470_ES1_0 && rev <= OMAP4470_MAX_REVISION)
-		__raw_writel(0x3A5512, 0x4A307BA0);
+		omap_vc_bypass_send_value(0x12, 0x55, 0x3A);
 	else if (rev >= OMAP4460_ES1_0 && rev <= OMAP4460_MAX_REVISION)
-		__raw_writel(0x225512, 0x4A307BA0);
+		omap_vc_bypass_send_value(0x12, 0x55, 0x22);
 	else if(rev == OMAP4430_ES1_0)
-		__raw_writel(0x3B5512, 0x4A307BA0);
+		omap_vc_bypass_send_value(0x12, 0x55, 0x3B);
 	else if (rev == OMAP4430_ES2_0)
-		__raw_writel(0x3A5512, 0x4A307BA0);
+		omap_vc_bypass_send_value(0x12, 0x55, 0x3A);
 	else if (rev >= OMAP4430_ES2_1)
-		__raw_writel(0x3A5512, 0x4A307BA0);
-
-	__raw_writel(__raw_readl(0x4A307BA0) | 0x1000000, 0x4A307BA0);
-	while(__raw_readl(0x4A307BA0) & 0x1000000)
-		;
-
-	/* PRM_IRQSTATUS_MPU */
-	__raw_writel(__raw_readl(0x4A306010), 0x4A306010);
-
+		omap_vc_bypass_send_value(0x12, 0x55, 0x3A);
 
 	/* FIXME: set VCORE2 force VSEL, Check the reset value */
 	/* PRM_VC_VAL_BYPASS */
 	/* VCORE 2 - vdd_iva on 4430/4460 */
 	/* SMPS 2  - vdd_core on 4470 */
 	if(rev == OMAP4430_ES1_0)
-		__raw_writel(0x315B12, 0x4A307BA0);
+		omap_vc_bypass_send_value(0x12, 0x5B, 0x31);
 	else if (rev >= OMAP4470_ES1_0 && rev <= OMAP4470_MAX_REVISION)
-		__raw_writel(0x305B12, 0x4A307BA0);
+		omap_vc_bypass_send_value(0x12, 0x5B, 0x30);
+	else if (rev >= OMAP4460_ES1_0 && rev <= OMAP4460_MAX_REVISION)
+		omap_vc_bypass_send_value(0x12, 0x5B, 0x14);
 	else
-		__raw_writel(0x145B12, 0x4A307BA0); /*Setting IVA Voltage for OPP50 */
-
-	__raw_writel(__raw_readl(0x4A307BA0) | 0x1000000, 0x4A307BA0);
-	while(__raw_readl(0x4A307BA0) & 0x1000000)
-		;
-
-	/* PRM_IRQSTATUS_MPU */
-	__raw_writel(__raw_readl(0x4A306010), 0x4A306010);
+		omap_vc_bypass_send_value(0x12, 0x5B, 0x14);
 
 	/* set SMPS5 force VSEL */
 	/* PRM_VC_VAL_BYPASS */
 	/* SMPS5 - vdd_iva on 4470, none for 4430/4460 */
-	if (rev >= OMAP4470_ES1_0 && rev <= OMAP4470_MAX_REVISION) {
-		__raw_writel(0x144912, 0x4A307BA0);
-		/* set Valid bit in PRM_VC_VAL_BYPASS */
-		__raw_writel(__raw_readl(0x4A307BA0) | 0x1000000, 0x4A307BA0);
-		/* wait the acknowledge back from the SMPS */
-		while(__raw_readl(0x4A307BA0) & 0x1000000)
-			;
-		/* Reset irq status bits in  PRM_IRQSTATUS_MPU_A9 */
-		__raw_writel(__raw_readl(0x4A306010), 0x4A306010);
-	}
+	if (rev >= OMAP4470_ES1_0 && rev <= OMAP4470_MAX_REVISION)
+		omap_vc_bypass_send_value(0x12, 0x49, 0x14);
 
 	/* set VCORE3 force VSEL */
 	/* PRM_VC_VAL_BYPASS */
@@ -333,19 +355,12 @@ static void scale_vcores(void)
 	if (rev >= OMAP4460_ES1_0)
 		goto skip_vcore3;
 	else if(rev == OMAP4430_ES1_0)
-		__raw_writel(0x316112, 0x4A307BA0);
+		omap_vc_bypass_send_value(0x12, 0x61, 0x31);
 	else if (rev == OMAP4430_ES2_0)
-		__raw_writel(0x296112, 0x4A307BA0);
+		omap_vc_bypass_send_value(0x12, 0x61, 0x29);
 	else if (rev >= OMAP4430_ES2_1)
-		__raw_writel(0x2A6112, 0x4A307BA0);
+		omap_vc_bypass_send_value(0x12, 0x61, 0x2A);
 
-	__raw_writel(__raw_readl(0x4A307BA0) | 0x1000000, 0x4A307BA0);
-
-	while(__raw_readl(0x4A307BA0) & 0x1000000)
-		;
-
-	/* PRM_IRQSTATUS_MPU */
-	__raw_writel(__raw_readl(0x4A306010), 0x4A306010);
 skip_vcore3:
 
 	/* Enable 1.210V(rounded up from 1.203) from TPS for vdd_mpu on 4460 */
