@@ -308,6 +308,14 @@ static void do_scale_tps62361(u32 reg, u32 val)
  */
 static void scale_vcore_omap4430(unsigned int rev)
 {
+	/* vdd_core - VCORE 3 - OPP100 - ES2+: 1.228V */
+	if (rev == OMAP4430_ES1_0)
+		omap_vc_bypass_send_value(0x12, 0x61, 0x31);
+	else if (rev == OMAP4430_ES2_0)
+		omap_vc_bypass_send_value(0x12, 0x61, 0x29);
+	else if (rev >= OMAP4430_ES2_1)
+		omap_vc_bypass_send_value(0x12, 0x61, 0x2A);
+
 	/* vdd_mpu - VCORE 1 - OPP100 - ES2+: 1.2154V */
 	if (rev == OMAP4430_ES1_0)
 		omap_vc_bypass_send_value(0x12, 0x55, 0x3B);
@@ -321,14 +329,6 @@ static void scale_vcore_omap4430(unsigned int rev)
 		omap_vc_bypass_send_value(0x12, 0x5B, 0x31);
 	else
 		omap_vc_bypass_send_value(0x12, 0x5B, 0x14);
-
-	/* vdd_core - VCORE 3 - OPP100 - ES2+: 1.228V */
-	if (rev == OMAP4430_ES1_0)
-		omap_vc_bypass_send_value(0x12, 0x61, 0x31);
-	else if (rev == OMAP4430_ES2_0)
-		omap_vc_bypass_send_value(0x12, 0x61, 0x29);
-	else if (rev >= OMAP4430_ES2_1)
-		omap_vc_bypass_send_value(0x12, 0x61, 0x2A);
 }
 
 /**
@@ -344,14 +344,14 @@ static void scale_vcore_omap4460(unsigned int rev)
 	/* vdd_core - TWL6030 VCORE 1 - OPP100 - 1.127V */
 	omap_vc_bypass_send_value(0x12, 0x55, 0x22);
 
-	/* vdd_iva - TWL6030 VCORE 2 - OPP50  - 0.950V */
-	omap_vc_bypass_send_value(0x12, 0x5B, 0x14);
-
 	/* vdd_mpu - TPS62361 - OPP100 - 1.210V (roundup from 1.2V) */
 	volt = 1210;
 	volt -= TPS62361_BASE_VOLT_MV;
 	volt /= 10;
 	do_scale_tps62361(TPS62361_REG_ADDR_SET1, volt);
+
+	/* vdd_iva - TWL6030 VCORE 2 - OPP50  - 0.950V */
+	omap_vc_bypass_send_value(0x12, 0x5B, 0x14);
 }
 
 /**
@@ -362,11 +362,11 @@ static void scale_vcore_omap4460(unsigned int rev)
  */
 static void scale_vcore_omap4470(unsigned int rev)
 {
-	/* vdd_mpu - SMPS 1 - OPP100 - 1.3674V */
-	omap_vc_bypass_send_value(0x12, 0x55, 0x3A);
-
 	/* vdd_core - SMPS 2 - OPP100 - 1.304V */
 	omap_vc_bypass_send_value(0x12, 0x5B, 0x30);
+
+	/* vdd_mpu - SMPS 1 - OPP100 - 1.3674V */
+	omap_vc_bypass_send_value(0x12, 0x55, 0x3A);
 
 	/* vdd_iva - SMPS 5 - OPP50 - 0.950V */
 	omap_vc_bypass_send_value(0x12, 0x49, 0x14);
