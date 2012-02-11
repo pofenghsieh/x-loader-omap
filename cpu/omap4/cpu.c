@@ -381,13 +381,13 @@ static void scale_vcore_omap4460(unsigned int rev)
  */
 static void scale_vcore_omap4470(unsigned int rev)
 {
-	/* vdd_core - SMPS 2 - OPP100 - 1.304V */
+	/* vdd_core - SMPS 2 - OPP100 - 1.1268V */
 	omap_vc_bypass_send_value(TWL6032_SRI2C_SLAVE_ADDR,
-				  TWL6032_SRI2C_REG_ADDR_SMPS2, 0x30);
+				  TWL6032_SRI2C_REG_ADDR_SMPS2, 0x22);
 
-	/* vdd_mpu - SMPS 1 - OPP100 - 1.3674V */
+	/* vdd_mpu - SMPS 1 - OPP100 - 1.2027V */
 	omap_vc_bypass_send_value(TWL6032_SRI2C_SLAVE_ADDR,
-				  TWL6032_SRI2C_REG_ADDR_SMPS1, 0x3A);
+				  TWL6032_SRI2C_REG_ADDR_SMPS1, 0x28);
 
 	/* vdd_iva - SMPS 5 - OPP50 - 0.950V */
 	omap_vc_bypass_send_value(TWL6032_SRI2C_SLAVE_ADDR,
