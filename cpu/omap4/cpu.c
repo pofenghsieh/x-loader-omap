@@ -332,13 +332,13 @@ static void scale_vcore_omap4430(unsigned int rev)
 {
 	u8 vsel;
 
-	/* vdd_core - VCORE 3 - OPP100 - ES2+: 1.228V */
-	vsel = (rev == OMAP4430_ES1_0) ? 0x31 : 0x2A;
+	/* vdd_core - VCORE 3 - OPP100 - ES2+: 1.127 */
+	vsel = (rev == OMAP4430_ES1_0) ? 0x31 : 0x22;
 	omap_vc_bypass_send_value(TWL6030_SRI2C_SLAVE_ADDR,
 				  TWL6030_SRI2C_REG_ADDR_VCORE3, vsel);
 
-	/* vdd_mpu - VCORE 1 - OPP100 - ES2+: 1.2154V */
-	vsel = (rev == OMAP4430_ES1_0) ? 0x3B : 0x3A;
+	/* vdd_mpu - VCORE 1 - OPP100 - ES2+: 1.2027 */
+	vsel = (rev == OMAP4430_ES1_0) ? 0x3B : 0x28;
 	omap_vc_bypass_send_value(TWL6030_SRI2C_SLAVE_ADDR,
 				  TWL6030_SRI2C_REG_ADDR_VCORE1, vsel);
 
