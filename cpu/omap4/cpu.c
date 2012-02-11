@@ -300,9 +300,80 @@ static void do_scale_tps62361(u32 reg, u32 val)
 
 }
 
-static void scale_vcores(void)
+/**
+ * scale_vcore_omap4430() - Scale for OMAP4430
+ * @rev:	OMAP chip revision
+ *
+ * PMIC assumed to be used is TWL6030
+ */
+static void scale_vcore_omap4430(unsigned int rev)
+{
+	/* vdd_mpu - VCORE 1 - OPP100 - ES2+: 1.2154V */
+	if (rev == OMAP4430_ES1_0)
+		omap_vc_bypass_send_value(0x12, 0x55, 0x3B);
+	else if (rev == OMAP4430_ES2_0)
+		omap_vc_bypass_send_value(0x12, 0x55, 0x3A);
+	else if (rev >= OMAP4430_ES2_1)
+		omap_vc_bypass_send_value(0x12, 0x55, 0x3A);
+
+	/* vdd_iva - VCORE 2 - OPP50 - ES2+: 0.950V */
+	if (rev == OMAP4430_ES1_0)
+		omap_vc_bypass_send_value(0x12, 0x5B, 0x31);
+	else
+		omap_vc_bypass_send_value(0x12, 0x5B, 0x14);
+
+	/* vdd_core - VCORE 3 - OPP100 - ES2+: 1.228V */
+	if (rev == OMAP4430_ES1_0)
+		omap_vc_bypass_send_value(0x12, 0x61, 0x31);
+	else if (rev == OMAP4430_ES2_0)
+		omap_vc_bypass_send_value(0x12, 0x61, 0x29);
+	else if (rev >= OMAP4430_ES2_1)
+		omap_vc_bypass_send_value(0x12, 0x61, 0x2A);
+}
+
+/**
+ * scale_vcore_omap4460() - Scale for OMAP4460
+ * @rev:	OMAP chip revision
+ *
+ * PMIC assumed to be used is TWL6030 + TPS62361
+ */
+static void scale_vcore_omap4460(unsigned int rev)
 {
 	u32 volt;
+
+	/* vdd_core - TWL6030 VCORE 1 - OPP100 - 1.127V */
+	omap_vc_bypass_send_value(0x12, 0x55, 0x22);
+
+	/* vdd_iva - TWL6030 VCORE 2 - OPP50  - 0.950V */
+	omap_vc_bypass_send_value(0x12, 0x5B, 0x14);
+
+	/* vdd_mpu - TPS62361 - OPP100 - 1.210V (roundup from 1.2V) */
+	volt = 1210;
+	volt -= TPS62361_BASE_VOLT_MV;
+	volt /= 10;
+	do_scale_tps62361(TPS62361_REG_ADDR_SET1, volt);
+}
+
+/**
+ * scale_vcore_omap4470() - Scale for OMAP4470
+ * @rev:	OMAP chip revision
+ *
+ * PMIC assumed to be used is TWL6032
+ */
+static void scale_vcore_omap4470(unsigned int rev)
+{
+	/* vdd_mpu - SMPS 1 - OPP100 - 1.3674V */
+	omap_vc_bypass_send_value(0x12, 0x55, 0x3A);
+
+	/* vdd_core - SMPS 2 - OPP100 - 1.304V */
+	omap_vc_bypass_send_value(0x12, 0x5B, 0x30);
+
+	/* vdd_iva - SMPS 5 - OPP50 - 0.950V */
+	omap_vc_bypass_send_value(0x12, 0x49, 0x14);
+}
+
+static void scale_vcores(void)
+{
 	unsigned int rev = omap_revision();
 
 	/* For VC bypass only VCOREx_CGF_FORCE  is necessary and
@@ -313,68 +384,13 @@ static void scale_vcores(void)
 	/* PRM_VC_CFG_I2C_CLK */
 	__raw_writel(0x6026, 0x4A307BAC);
 
-	/* VCOREx - power outputs of TWL6030 (OMAP4430/OMAP4460) */
-	/* SMPSx  - power outputs of TWL6032 (OMAP4470) */
-	/* set VCORE1 force VSEL */
-	/* PRM_VC_VAL_BYPASS */
-	/* VCORE 1 - vdd_core on 4460 and vdd_mpu on 4430 */
-	/* SMPS 1  - vdd_mpu on 4470 */
 	if (rev >= OMAP4470_ES1_0 && rev <= OMAP4470_MAX_REVISION)
-		omap_vc_bypass_send_value(0x12, 0x55, 0x3A);
+		scale_vcore_omap4470(rev);
 	else if (rev >= OMAP4460_ES1_0 && rev <= OMAP4460_MAX_REVISION)
-		omap_vc_bypass_send_value(0x12, 0x55, 0x22);
-	else if(rev == OMAP4430_ES1_0)
-		omap_vc_bypass_send_value(0x12, 0x55, 0x3B);
-	else if (rev == OMAP4430_ES2_0)
-		omap_vc_bypass_send_value(0x12, 0x55, 0x3A);
-	else if (rev >= OMAP4430_ES2_1)
-		omap_vc_bypass_send_value(0x12, 0x55, 0x3A);
-
-	/* FIXME: set VCORE2 force VSEL, Check the reset value */
-	/* PRM_VC_VAL_BYPASS */
-	/* VCORE 2 - vdd_iva on 4430/4460 */
-	/* SMPS 2  - vdd_core on 4470 */
-	if(rev == OMAP4430_ES1_0)
-		omap_vc_bypass_send_value(0x12, 0x5B, 0x31);
-	else if (rev >= OMAP4470_ES1_0 && rev <= OMAP4470_MAX_REVISION)
-		omap_vc_bypass_send_value(0x12, 0x5B, 0x30);
-	else if (rev >= OMAP4460_ES1_0 && rev <= OMAP4460_MAX_REVISION)
-		omap_vc_bypass_send_value(0x12, 0x5B, 0x14);
-	else
-		omap_vc_bypass_send_value(0x12, 0x5B, 0x14);
-
-	/* set SMPS5 force VSEL */
-	/* PRM_VC_VAL_BYPASS */
-	/* SMPS5 - vdd_iva on 4470, none for 4430/4460 */
-	if (rev >= OMAP4470_ES1_0 && rev <= OMAP4470_MAX_REVISION)
-		omap_vc_bypass_send_value(0x12, 0x49, 0x14);
-
-	/* set VCORE3 force VSEL */
-	/* PRM_VC_VAL_BYPASS */
-	/* VCORE 3 - vdd_core on 4430, none for 4460/4470 */
-	if (rev >= OMAP4460_ES1_0)
-		goto skip_vcore3;
-	else if(rev == OMAP4430_ES1_0)
-		omap_vc_bypass_send_value(0x12, 0x61, 0x31);
-	else if (rev == OMAP4430_ES2_0)
-		omap_vc_bypass_send_value(0x12, 0x61, 0x29);
-	else if (rev >= OMAP4430_ES2_1)
-		omap_vc_bypass_send_value(0x12, 0x61, 0x2A);
-
-skip_vcore3:
-
-	/* Enable 1.210V(rounded up from 1.203) from TPS for vdd_mpu on 4460 */
-	if (rev >= OMAP4460_ES1_0 && rev <= OMAP4460_MAX_REVISION) {
-		volt = 1210;
-		volt -= TPS62361_BASE_VOLT_MV;
-		volt /= 10;
-		do_scale_tps62361(TPS62361_REG_ADDR_SET1, volt);
-	}
-
-
+		scale_vcore_omap4460(rev);
+	else			/* Default OMAP4430 */
+		scale_vcore_omap4430(rev);
 }
-
-
 
 /**********************************************************
  * Routine: s_init
