@@ -334,15 +334,18 @@ static void scale_vcore_omap4430(unsigned int rev)
 
 	/* vdd_core - VCORE 3 - OPP100 - ES2+: 1.228V */
 	vsel = (rev == OMAP4430_ES1_0) ? 0x31 : 0x2A;
-	omap_vc_bypass_send_value(0x12, 0x61, vsel);
+	omap_vc_bypass_send_value(TWL6030_SRI2C_SLAVE_ADDR,
+				  TWL6030_SRI2C_REG_ADDR_VCORE3, vsel);
 
 	/* vdd_mpu - VCORE 1 - OPP100 - ES2+: 1.2154V */
 	vsel = (rev == OMAP4430_ES1_0) ? 0x3B : 0x3A;
-	omap_vc_bypass_send_value(0x12, 0x55, vsel);
+	omap_vc_bypass_send_value(TWL6030_SRI2C_SLAVE_ADDR,
+				  TWL6030_SRI2C_REG_ADDR_VCORE1, vsel);
 
 	/* vdd_iva - VCORE 2 - OPP50 - ES2+: 0.950V */
 	vsel = (rev == OMAP4430_ES1_0) ? 0x31 : 0x14;
-	omap_vc_bypass_send_value(0x12, 0x5B, vsel);
+	omap_vc_bypass_send_value(TWL6030_SRI2C_SLAVE_ADDR,
+				  TWL6030_SRI2C_REG_ADDR_VCORE2, vsel);
 }
 
 /**
@@ -356,7 +359,8 @@ static void scale_vcore_omap4460(unsigned int rev)
 	u32 volt;
 
 	/* vdd_core - TWL6030 VCORE 1 - OPP100 - 1.127V */
-	omap_vc_bypass_send_value(0x12, 0x55, 0x22);
+	omap_vc_bypass_send_value(TWL6030_SRI2C_SLAVE_ADDR,
+				  TWL6030_SRI2C_REG_ADDR_VCORE1, 0x22);
 
 	/* vdd_mpu - TPS62361 - OPP100 - 1.210V (roundup from 1.2V) */
 	volt = 1210;
@@ -365,7 +369,8 @@ static void scale_vcore_omap4460(unsigned int rev)
 	do_scale_tps62361(TPS62361_REG_ADDR_SET1, volt);
 
 	/* vdd_iva - TWL6030 VCORE 2 - OPP50  - 0.950V */
-	omap_vc_bypass_send_value(0x12, 0x5B, 0x14);
+	omap_vc_bypass_send_value(TWL6030_SRI2C_SLAVE_ADDR,
+				  TWL6030_SRI2C_REG_ADDR_VCORE2, 0x14);
 }
 
 /**
