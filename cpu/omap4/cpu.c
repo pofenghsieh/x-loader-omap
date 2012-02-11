@@ -308,27 +308,19 @@ static void do_scale_tps62361(u32 reg, u32 val)
  */
 static void scale_vcore_omap4430(unsigned int rev)
 {
+	u8 vsel;
+
 	/* vdd_core - VCORE 3 - OPP100 - ES2+: 1.228V */
-	if (rev == OMAP4430_ES1_0)
-		omap_vc_bypass_send_value(0x12, 0x61, 0x31);
-	else if (rev == OMAP4430_ES2_0)
-		omap_vc_bypass_send_value(0x12, 0x61, 0x29);
-	else if (rev >= OMAP4430_ES2_1)
-		omap_vc_bypass_send_value(0x12, 0x61, 0x2A);
+	vsel = (rev == OMAP4430_ES1_0) ? 0x31 : 0x2A;
+	omap_vc_bypass_send_value(0x12, 0x61, vsel);
 
 	/* vdd_mpu - VCORE 1 - OPP100 - ES2+: 1.2154V */
-	if (rev == OMAP4430_ES1_0)
-		omap_vc_bypass_send_value(0x12, 0x55, 0x3B);
-	else if (rev == OMAP4430_ES2_0)
-		omap_vc_bypass_send_value(0x12, 0x55, 0x3A);
-	else if (rev >= OMAP4430_ES2_1)
-		omap_vc_bypass_send_value(0x12, 0x55, 0x3A);
+	vsel = (rev == OMAP4430_ES1_0) ? 0x3B : 0x3A;
+	omap_vc_bypass_send_value(0x12, 0x55, vsel);
 
 	/* vdd_iva - VCORE 2 - OPP50 - ES2+: 0.950V */
-	if (rev == OMAP4430_ES1_0)
-		omap_vc_bypass_send_value(0x12, 0x5B, 0x31);
-	else
-		omap_vc_bypass_send_value(0x12, 0x5B, 0x14);
+	vsel = (rev == OMAP4430_ES1_0) ? 0x31 : 0x14;
+	omap_vc_bypass_send_value(0x12, 0x5B, vsel);
 }
 
 /**
