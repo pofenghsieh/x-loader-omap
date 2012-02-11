@@ -227,6 +227,28 @@ unsigned int fat_boot(void)
 		return 0;
 }
 
+static void omap_vc_init(u8 hscll, u8 hsclh, u8 scll, u8 sclh)
+{
+	u32 val;
+
+	val = 0x00 << PRM_VC_CFG_I2C_MODE_HSMCODE_SHIFT;
+	if (hscll || hsclh)
+		val |= PRM_VC_CFG_I2C_MODE_HSMODEEN_BIT;
+
+	__raw_writel(val, PRM_VC_CFG_I2C_MODE);
+
+	hscll &= PRM_VC_CFG_I2C_CLK_HSCLL_MASK;
+	hsclh &= PRM_VC_CFG_I2C_CLK_HSCLH_MASK;
+	scll &= PRM_VC_CFG_I2C_CLK_SCLL_MASK;
+	sclh &= PRM_VC_CFG_I2C_CLK_SCLH_MASK;
+
+	val = hscll << PRM_VC_CFG_I2C_CLK_HSCLL_SHIFT |
+	    hsclh << PRM_VC_CFG_I2C_CLK_HSCLH_SHIFT |
+	    scll << PRM_VC_CFG_I2C_CLK_SCLL_SHIFT |
+	    sclh << PRM_VC_CFG_I2C_CLK_SCLH_SHIFT;
+	__raw_writel(val, PRM_VC_CFG_I2C_CLK);
+}
+
 /**
  * omap_vc_bypass_send_value() - Send a data using VC Bypass command
  * @sa:		7 bit I2C slave address of the PMIC
@@ -368,13 +390,18 @@ static void scale_vcores(void)
 {
 	unsigned int rev = omap_revision();
 
-	/* For VC bypass only VCOREx_CGF_FORCE  is necessary and
-	 * VCOREx_CFG_VOLTAGE  changes can be discarded
+	/*
+	 * Dont use HSMODE, scll=0x60, sclh=0x26
+	 * Note on HSMODE = 0:
+	 * This allows us to allow a voltage domain to scale while we do i2c
+	 * operation for the next domain - Please verify to ensure
+	 * adequate delays are present in the case of slower ramp time for PMIC.
+	 * This settings allow upto ~100Usec latency covered while i2c operation
+	 * is in progress with the above configuration.
+	 * Note #2: this latency will also depend on i2c_clk configuration as
+	 * well.
 	 */
-	/* PRM_VC_CFG_I2C_MODE */
-	__raw_writel(0x0, 0x4A307BA8);
-	/* PRM_VC_CFG_I2C_CLK */
-	__raw_writel(0x6026, 0x4A307BAC);
+	omap_vc_init(0x00, 0x00, 0x60, 0x26);
 
 	if (rev >= OMAP4470_ES1_0 && rev <= OMAP4470_MAX_REVISION)
 		scale_vcore_omap4470(rev);
