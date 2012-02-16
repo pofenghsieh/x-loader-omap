@@ -193,19 +193,28 @@ void start_armboot (void)
 	}
 
 	omap4_rev = omap_revision();
-	if (omap4_rev >= OMAP4460_ES1_0) {
+	si_type = omap4_silicon_type();
+
+	if ((omap4_rev >= OMAP4460_ES1_0) &&
+			(omap4_rev <= OMAP4460_MAX_REVISION)) {
 		omap_temp_sensor_check();
-		if (omap4_rev == OMAP4470_ES1_0) {
-			writel(((TSHUT_HIGH_ADC_CODE << 16) |
-			TSHUT_COLD_ADC_CODE), CORE_TSHUT_THRESHOLD);
-			MV1(WK(CONTROL_SPARE_RW) , (M1));
-		}
-		si_type = omap4_silicon_type();
 		if (si_type == PROD_ID_1_SILICON_TYPE_HIGH_PERF)
 			printf("OMAP4460: 1.5 GHz capable SOM\n");
 		else if (si_type == PROD_ID_1_SILICON_TYPE_STD_PERF)
 			printf("OMAP4460: 1.2 GHz capable SOM\n");
+	} else if ((omap4_rev >= OMAP4470_ES1_0) &&
+			(omap4_rev <= OMAP4470_MAX_REVISION)) {
+		omap_temp_sensor_check();
+		writel(((TSHUT_HIGH_ADC_CODE << 16) | TSHUT_COLD_ADC_CODE),
+				CORE_TSHUT_THRESHOLD);
+		MV1(WK(CONTROL_SPARE_RW) , (M1));
+
+		if (si_type == PROD_ID_1_SILICON_TYPE_HIGH_PERF)
+			printf("OMAP4470: 1.5 GHz capable SOM\n");
+		else if (si_type == PROD_ID_1_SILICON_TYPE_STD_PERF)
+			printf("OMAP4470: 1.3 GHz capable SOM\n");
 	}
+
 #ifdef START_LOADB_DOWNLOAD
 	strcpy(boot_dev_name, "UART");
 	do_load_serial_bin (CFG_LOADADDR, 115200);
