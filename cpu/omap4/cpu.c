@@ -419,6 +419,49 @@ static void scale_vcores(void)
 		scale_vcore_omap4430(rev);
 }
 
+static void errata_i727_workaround(void)
+{
+	unsigned long reg;
+
+	/* Errata i727
+	 *
+	 * For all OMAP4 revisions
+	 * When a warm reset is applied on the system, the OMAP processor
+	 * restarts with another OPP and so frequency is not the same. Due to
+	 * this frequency change, the refresh rate programmed is not the accurate
+	 * value and could result in an unexpected behavior on the memory side.
+	 *
+	 * The workaround is to force self-refresh immediately when coming back
+	 * from the warm reset.
+	 */
+
+	/* set EMIF1 ddr self refresh mode and clear self refresh timer */
+	reg = __raw_readl(EMIF1_BASE + EMIF_PWR_MGMT_CTRL);
+	reg &= ~EMIF_PWR_MGMT_CTRL_LP_MODE_MASK;
+	reg |= EMIF_PWR_MGMT_CTRL_LP_MODE_REFRESH;
+	reg &= ~EMIF_PWR_MGMT_CTRL_SR_TIM_MASK;
+	__raw_writel(reg, EMIF1_BASE + EMIF_PWR_MGMT_CTRL);
+
+	/* set EMIF2 ddr self refresh mode and clear self refresh timer */
+	reg = __raw_readl(EMIF2_BASE + EMIF_PWR_MGMT_CTRL);
+	reg &= ~EMIF_PWR_MGMT_CTRL_LP_MODE_MASK;
+	reg |= EMIF_PWR_MGMT_CTRL_LP_MODE_REFRESH;
+	reg &= ~EMIF_PWR_MGMT_CTRL_SR_TIM_MASK;
+	__raw_writel(reg, EMIF2_BASE + EMIF_PWR_MGMT_CTRL);
+
+	/* dummy read commands to make changes above take effect */
+	__raw_readl(EMIF1_BASE + EMIF_PWR_MGMT_CTRL);
+	__raw_readl(EMIF2_BASE + EMIF_PWR_MGMT_CTRL);
+
+	/* i735 Errata which requires SR_TIM to be programmed with a
+	 * value greater than 6 is not implemented here because
+	 * ddr_init will run shortly after this function and
+	 * reprogram the DDR power management registers including
+	 * SR_TIM.
+	 */
+
+}
+
 /**********************************************************
  * Routine: s_init
  * Description: Does early system init of muxing and clocks.
@@ -426,6 +469,8 @@ static void scale_vcores(void)
  **********************************************************/
 void s_init(void)
 {
+	errata_i727_workaround();
+
 	set_muxconf_regs();
 	spin_delay(100);
 
