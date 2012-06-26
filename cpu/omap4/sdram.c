@@ -182,6 +182,10 @@ static void emif_config(unsigned int base, const struct ddr_regs *ddr_regs)
 	/* set MR10 register */
 	__raw_writel(MR10_ADDR, base + EMIF_LPDDR2_MODE_REG_CFG);
 	__raw_writel(MR10_ZQINIT, base + EMIF_LPDDR2_MODE_REG_DATA);
+
+	/* wait for tZQINIT=1us */
+	spin_delay(2000); /* value for up to 2GHz MPU spin */
+
 	__raw_writel(CS1_MR(MR10_ADDR), base + EMIF_LPDDR2_MODE_REG_CFG);
 	__raw_writel(MR10_ZQINIT, base + EMIF_LPDDR2_MODE_REG_DATA);
 
