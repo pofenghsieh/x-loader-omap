@@ -73,11 +73,20 @@ const struct ddr_regs ddr_regs_elpida4G_400_mhz_1cs = {
 	.mr2		= 0x4
 };
 
+/*
+ * Set Read Latency value to 0xB and DLL delay to 0x37
+ * according to OMAP4470 LPDDR interface configuration
+ * update for 466 MHz
+ */
 const struct ddr_regs ddr_regs_elpida4G_466_mhz_1cs = {
 	.tim1		= 0x130F376B,
 	.tim2		= 0x3041105A,
 	.tim3		= 0x00F543CF,
+#ifdef CORE_233MHZ
+	.phy_ctrl_1	= 0x449FF37B,
+#else
 	.phy_ctrl_1	= 0x449FF408,
+#endif
 	.ref_ctrl	= 0x0000071B,
 	.config_init	= 0x80800eb2,
 	.config_final	= 0x80801ab2,
@@ -217,6 +226,21 @@ void __ddr_init(void)
 		__raw_writel(0x9c989c00, CONTROL_LPDDR2IO2_2);
 		__raw_writel(0xa0888c03, CONTROL_LPDDR2IO2_3);
 	}
+
+#ifdef CORE_233MHZ
+	/*
+	 * Slew Rate should be set to “FASTEST” and
+	 * Impedance Control to “Drv12”:
+	 * CONTROL_LPDDR2IOx_2[LPDDR2IO1_GR10_SR] = 0
+	 * CONTROL_LPDDR2IOx_2[LPDDR2IO1_GR10_I] = 7
+	 * where x=[1-2]
+	 */
+	if (rev >= OMAP4470_ES1_0) {
+		__raw_writel(0x9c3c9c00, CONTROL_LPDDR2IO1_2);
+		__raw_writel(0x9c3c9c00, CONTROL_LPDDR2IO2_2);
+	}
+#endif
+
 }
 
 void ddr_init(void)
