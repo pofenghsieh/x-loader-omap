@@ -144,18 +144,18 @@ int board_init(void)
 	MV(CP(CAM_SHUTTER) , ( OFF_EN | OFF_PD | OFF_OUT_PTD | M0))  /* cam_shutter */ \
 	MV(CP(CAM_STROBE) , ( OFF_EN | OFF_PD | OFF_OUT_PTD | M0))  /* cam_strobe */ \
 	MV(CP(CAM_GLOBALRESET) , ( PTD | OFF_EN | OFF_PD | OFF_OUT_PTD | M3))  /* gpio_83 */ \
-	MV(CP(USBB1_ULPITLL_CLK) , ( IEN | OFF_EN | OFF_IN | M1))  /* hsi1_cawake */ \
-	MV(CP(USBB1_ULPITLL_STP) , ( IEN | OFF_EN | OFF_IN | M1))  /* hsi1_cadata */ \
-	MV(CP(USBB1_ULPITLL_DIR) , ( IEN | OFF_EN | OFF_IN | M1))  /* hsi1_caflag */ \
-	MV(CP(USBB1_ULPITLL_NXT) , ( OFF_EN | M1))  /* hsi1_acready */ \
-	MV(CP(USBB1_ULPITLL_DAT0) , ( OFF_EN | M1))  /* hsi1_acwake */ \
-	MV(CP(USBB1_ULPITLL_DAT1) , ( OFF_EN | M1))  /* hsi1_acdata */ \
-	MV(CP(USBB1_ULPITLL_DAT2) , ( OFF_EN | M1))  /* hsi1_acflag */ \
-	MV(CP(USBB1_ULPITLL_DAT3) , ( IEN | OFF_EN | OFF_IN | M1))  /* hsi1_caready */ \
-	MV(CP(USBB1_ULPITLL_DAT4) , ( IEN | OFF_EN | OFF_PD | OFF_IN | M4))  /* usbb1_ulpiphy_dat4 */ \
-	MV(CP(USBB1_ULPITLL_DAT5) , ( IEN | OFF_EN | OFF_PD | OFF_IN | M4))  /* usbb1_ulpiphy_dat5 */ \
-	MV(CP(USBB1_ULPITLL_DAT6) , ( IEN | OFF_EN | OFF_PD | OFF_IN | M4))  /* usbb1_ulpiphy_dat6 */ \
-	MV(CP(USBB1_ULPITLL_DAT7) , ( IEN | OFF_EN | OFF_PD | OFF_IN | M4))  /* usbb1_ulpiphy_dat7 */ \
+	MV(CP(USBB1_ULPITLL_CLK) , ( M7_SAFE))  /* hsi1_cawake */ \
+	MV(CP(USBB1_ULPITLL_STP) , ( M7_SAFE))  /* hsi1_cadata */ \
+	MV(CP(USBB1_ULPITLL_DIR) , ( M7_SAFE))  /* hsi1_caflag */ \
+	MV(CP(USBB1_ULPITLL_NXT) , ( M7_SAFE))  /* hsi1_acready */ \
+	MV(CP(USBB1_ULPITLL_DAT0) , ( M7_SAFE))  /* hsi1_acwake */ \
+	MV(CP(USBB1_ULPITLL_DAT1) , ( M7_SAFE))  /* hsi1_acdata */ \
+	MV(CP(USBB1_ULPITLL_DAT2) , ( M7_SAFE))  /* hsi1_acflag */ \
+	MV(CP(USBB1_ULPITLL_DAT3) , ( M7_SAFE))  /* hsi1_caready */ \
+	MV(CP(USBB1_ULPITLL_DAT4) , ( M7_SAFE))  /* usbb1_ulpiphy_dat4 */ \
+	MV(CP(USBB1_ULPITLL_DAT5) , ( M7_SAFE))  /* usbb1_ulpiphy_dat5 */ \
+	MV(CP(USBB1_ULPITLL_DAT6) , ( M7_SAFE))  /* usbb1_ulpiphy_dat6 */ \
+	MV(CP(USBB1_ULPITLL_DAT7) , ( M7_SAFE))  /* usbb1_ulpiphy_dat7 */ \
 	MV(CP(USBB1_HSIC_DATA) , ( IEN | OFF_EN | OFF_PD | OFF_IN | M0))  /* usbb1_hsic_data */ \
 	MV(CP(USBB1_HSIC_STROBE) , ( IEN | OFF_EN | OFF_PD | OFF_IN | M0))  /* usbb1_hsic_strobe */ \
 	MV(CP(USBC1_ICUSB_DP) , ( IEN | M0))  /* usbc1_icusb_dp */ \
