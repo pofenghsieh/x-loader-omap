@@ -56,10 +56,10 @@ init_fnc_t *init_sequence[] = {
 	cpu_init,		/* basic cpu dependent setup */
 	board_init,		/* basic board dependent setup */
 #ifdef CFG_PRINTF
- 	serial_init,		/* serial communications setup */
+	serial_init,		/* serial communications setup */
 	print_info,
 #endif
-   	//nand_init,		/* board specific nand init */
+	//nand_init,		/* board specific nand init */
 	NULL,
 };
 
@@ -181,12 +181,12 @@ extern int do_load_serial_bin(ulong offset, int baudrate);
 
 void start_armboot (void)
 {
-  	init_fnc_t **init_fnc_ptr;
+	init_fnc_t **init_fnc_ptr;
 	uchar *buf;
 	char boot_dev_name[8];
 	u32 si_type, omap4_rev;
- 
-   	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
+
+	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		if ((*init_fnc_ptr)() != 0) {
 			hang ();
 		}
@@ -262,7 +262,7 @@ void start_armboot (void)
 #endif
 	/* go run U-Boot and never return */
 	printf("Starting OS Bootloader from %s ...\n", boot_dev_name);
- 	((init_fnc_t *)CFG_LOADADDR)();
+	((init_fnc_t *)CFG_LOADADDR)();
 
 	/* should never come here */
 #if defined(CFG_ONENAND) || defined(CONFIG_MMC)
