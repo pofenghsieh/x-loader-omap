@@ -64,7 +64,7 @@ const struct ddr_regs ddr_regs_elpida4G_400_mhz_1cs = {
 	.tim1		= 0x10eb0662,
 	.tim2		= 0x20370dd2,
 	.tim3		= 0x00b1c33f,
-	.phy_ctrl_1	= 0x449FF408,
+	.phy_ctrl_1	= 0x449FF379,
 	.ref_ctrl	= 0x00000618,
 	.config_init	= 0x80800eb2,
 	.config_final	= 0x80801ab2,
@@ -81,7 +81,7 @@ const struct ddr_regs ddr_regs_elpida4G_400_mhz_1cs = {
 const struct ddr_regs ddr_regs_elpida4G_466_mhz_1cs = {
 	.tim1		= 0x130F376B,
 	.tim2		= 0x3041105A,
-	.tim3		= 0x00F543CF,
+	.tim3		= 0x00F563CF,
 #ifdef CORE_233MHZ
 	.phy_ctrl_1	= 0x449FF37B,
 #else
