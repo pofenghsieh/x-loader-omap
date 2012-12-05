@@ -145,7 +145,7 @@ int board_init(void)
 	MV(CP(CAM_STROBE) , ( OFF_EN | OFF_PD | OFF_OUT_PTD | M0))  /* cam_strobe */ \
 	MV(CP(CAM_GLOBALRESET) , ( PTD | OFF_EN | OFF_PD | OFF_OUT_PTD | M3))  /* gpio_83 */ \
 	MV(CP(USBB1_ULPITLL_CLK) , ( M7_SAFE | PTD))  /* safe_mode / pulldown */ \
-	MV(CP(USBB1_ULPITLL_STP) , ( M7_SAFE | PTD))  /* safe_mode / pulldown */ \
+	MV(CP(USBB1_ULPITLL_STP) , ( M7_SAFE | PTU))  /* safe_mode / pullup */ \
 	MV(CP(USBB1_ULPITLL_DIR) , ( M7_SAFE | PTD))  /* safe_mode / pulldown */ \
 	MV(CP(USBB1_ULPITLL_NXT) , ( M7_SAFE | PTD))  /* safe_mode / pulldown */ \
 	MV(CP(USBB1_ULPITLL_DAT0) , ( M7_SAFE | PTD))  /* safe_mode / pulldown */ \
